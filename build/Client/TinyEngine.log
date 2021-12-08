@@ -1,0 +1,8 @@
+﻿  ClientMain.cpp
+C:\Users\Oliver.Lebert\Downloads\TinyEngine2\src\ClientMain.cpp(54,47): warning C4267: 'argument': conversion from 'size_t' to 'T', possible loss of data
+          with
+          [
+              T=unsigned char
+          ]
+C:\Users\Oliver.Lebert\Downloads\TinyEngine2\src\ClientMain.cpp(55,40): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  TinyEngine.vcxproj -> C:\Users\Oliver.Lebert\Downloads\TinyEngine2\bin\Game_Client.exe
