@@ -1,11 +1,2 @@
-﻿  ClientMain.cpp
-C:\Users\Oliver.Lebert\Documents\GitHub\FGNetworkingGameEmil\src\ClientMain.cpp(55,47): warning C4267: 'argument': conversion from 'size_t' to 'T', possible loss of data
-          with
-          [
-              T=unsigned char
-          ]
-C:\Users\Oliver.Lebert\Documents\GitHub\FGNetworkingGameEmil\src\ClientMain.cpp(56,40): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-  Player.cpp
-  ServerMain.cpp
-  Generating Code...
+﻿  ServerMain.cpp
   TinyEngine.vcxproj -> C:\Users\Oliver.Lebert\Documents\GitHub\FGNetworkingGameEmil\bin\Game_Client.exe

@@ -2,8 +2,9 @@
 #define PLAYER_MAX 20
 #define PLAYER_NAME_MAX 15
 
-const float playerSpeed = 100.f;
+const float playerSpeed = 180.f;
 const float playerErrorCorrectionStrength = 1.5f;
+const float playerRadius = 16;
 
 class Player
 {
@@ -18,6 +19,8 @@ public:
 
 	float errorX = 0.f;
 	float errorY = 0.f;
+
+	float lastFireTime = 0.f;
 
 	char name[PLAYER_NAME_MAX + 1];
 

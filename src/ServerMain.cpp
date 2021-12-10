@@ -11,6 +11,8 @@
 #include "Projectile.h"
 #if SERVER
 
+bool gameStarted = false;
+
 void handleMessage(int userId, NetMessage msg)
 {
 	MessageType type = msg.read<MessageType>();
@@ -81,6 +83,9 @@ void handleMessage(int userId, NetMessage msg)
 
 		case MessageType::PlayerRequestFire:
 		{
+			if (!gameStarted)
+				break;
+
 			int projectileIndex = -1;
 			for(int i = 0; i < PROJECTILE_MAX; i++)
 			{
@@ -98,11 +103,21 @@ void handleMessage(int userId, NetMessage msg)
 			}
 
 			Player* player = &players[userId];
-			projectiles[projectileIndex].spawn(player->x, player->y, player->inputX, player->inputY);
+
+			if (player->inputX == 0 && player->inputY == 0)
+				break;
+
+			if (engElapsedTime() - player->lastFireTime < playerFireCooldown)
+				break;
+
+			player->lastFireTime = engElapsedTime();
+			
+			projectiles[projectileIndex].spawn(userId, player->x, player->y, player->inputX, player->inputY);
 
 			NetMessage response;
 			response.write<MessageType>(MessageType::ProjectileSpawn);
 			response.write<int>(projectileIndex);
+			response.write<int>(userId);
 			response.write<float>(player->x);
 			response.write<float>(player->y);
 			response.write<char>(player->inputX);
@@ -132,6 +147,12 @@ int WinMain(HINSTANCE, HINSTANCE, char*, int)
 			{
 				case NetEventType::UserConnected:
 				{
+					if (gameStarted)
+					{
+						serverKickUser(event.userId);
+						break;
+					}
+
 					engPrint("User %d connected", event.userId);
 					serverAcceptUser(event.userId);
 
@@ -213,6 +234,33 @@ int WinMain(HINSTANCE, HINSTANCE, char*, int)
 
 		engSetColor(0xCC4444FF);
 		engClear();
+
+		if (engKeyPressed(Key::Space))
+			gameStarted = !gameStarted;
+
+		engSetColor(0xFFFFFFFF);
+		engText(400, 12, gameStarted ? "STARTED" : "WAITING...");
+
+		// Check if we have a winner
+		if(gameStarted)
+		{
+			int numAlivePlayers = 0;
+			int lastAlivePlayer = -1;
+			for (auto& player : players)
+			{
+				if (player.alive)
+				{
+					++numAlivePlayers;
+					lastAlivePlayer = player.id;
+				}
+			}
+
+			if (numAlivePlayers == 1)
+				engTextf(400, 300, "'%s' WINS!", players[lastAlivePlayer].name);
+			else if (numAlivePlayers == 0)
+				engText(400, 300, "Draw :(");
+		}
+		
 
 		for (auto& player : players)
 		{

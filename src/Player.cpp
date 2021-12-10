@@ -1,12 +1,12 @@
 #include "Player.h"
-
 #include "Client.h"
 #include "Engine.h"
 #include "MessageType.h"
 #include "Network.h"
 #include <cmath>
-
 #include "Projectile.h"
+
+#define clamp(a, min, max) (a < min ? min : (a > max ? max : a))
 
 Player players[PLAYER_MAX];
 #if CLIENT
@@ -15,6 +15,9 @@ int possessedPlayerId = -1;
 
 void Player::netReceivePosition(float newX, float newY)
 {
+	newX = clamp(newX, 0.f + playerRadius, 800.f - playerRadius);
+	newY = clamp(newY, 0.f + playerRadius, 600.f - playerRadius);
+
 	errorX = newX - x;
 	errorY = newY - y;
 }
@@ -95,6 +98,9 @@ void Player::update()
 
 	x += inputX * playerSpeed * engDeltaTime();
 	y += inputY * playerSpeed * engDeltaTime();
+
+	x = clamp(x, 0.f + playerRadius, 800.f - playerRadius);
+	y = clamp(y, 0.f + playerRadius, 600.f - playerRadius);
 }
 
 void Player::draw()
@@ -104,6 +110,6 @@ void Player::draw()
 	if (hasControl())
 		engSetColor(0xADDEBEEF);
 #endif
-	engFillRect((int)x, (int)y, 32, 32);
-	engText((int)x, (int)y - 16, name);
+	engFillRect((int)x - playerRadius, (int)y - playerRadius, 32, 32);
+	engText((int)x - playerRadius, (int)y - playerRadius - 16, name);
 }
