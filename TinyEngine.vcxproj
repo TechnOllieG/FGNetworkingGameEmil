@@ -91,6 +91,7 @@
     <ClCompile Include="src\Engine.cpp" />
     <ClCompile Include="src\Network.cpp" />
     <ClCompile Include="src\Player.cpp" />
+    <ClCompile Include="src\Projectile.cpp" />
     <ClCompile Include="src\Server.cpp" />
     <ClCompile Include="src\ServerMain.cpp" />
   </ItemGroup>
@@ -102,6 +103,7 @@
     <ClInclude Include="src\MessageType.h" />
     <ClInclude Include="src\Network.h" />
     <ClInclude Include="src\Player.h" />
+    <ClInclude Include="src\Projectile.h" />
     <ClInclude Include="src\Server.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

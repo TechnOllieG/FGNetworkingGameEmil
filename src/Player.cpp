@@ -6,6 +6,8 @@
 #include "Network.h"
 #include <cmath>
 
+#include "Projectile.h"
+
 Player players[PLAYER_MAX];
 #if CLIENT
 int possessedPlayerId = -1;
@@ -69,6 +71,18 @@ void Player::update()
 
 		inputX = frameInputX;
 		inputY = frameInputY;
+
+		if(engKeyPressed(Key::Space))
+		{
+			for(auto& projectile : projectiles)
+			{
+				if (projectile.alive)
+					continue;
+
+				projectile.spawn(x, y, inputX, inputY);
+				break;
+			}
+		}
 	}
 #endif
 

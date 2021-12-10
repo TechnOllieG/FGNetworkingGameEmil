@@ -6,6 +6,7 @@
 #include "Client.h"
 #include "Network.h"
 #include "MessageType.h"
+#include "Projectile.h"
 
 #if CLIENT
 
@@ -124,10 +125,25 @@ int WinMain(HINSTANCE, HINSTANCE, char*, int)
 		for(auto& player : players)
 		{
 			if (player.alive)
-			{
 				player.update();
+		}
+
+		for (auto& projectile : projectiles)
+		{
+			if (projectile.alive)
+				projectile.update();
+		}
+
+		for(auto& player : players)
+		{
+			if(player.alive)
 				player.draw();
-			}
+		}
+
+		for (auto& projectile : projectiles)
+		{
+			if (projectile.alive)
+				projectile.draw();
 		}
 	}
 
