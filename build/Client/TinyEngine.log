@@ -1,5 +1,4 @@
 ﻿  ClientMain.cpp
-C:\Users\Oliver.Lebert\Documents\GitHub\FGNetworkingGameEmil\src\Projectile.h(4,34): warning C4305: 'initializing': truncation from 'double' to 'float'
 C:\Users\Oliver.Lebert\Documents\GitHub\FGNetworkingGameEmil\src\ClientMain.cpp(55,47): warning C4267: 'argument': conversion from 'size_t' to 'T', possible loss of data
           with
           [
@@ -7,10 +6,6 @@ C:\Users\Oliver.Lebert\Documents\GitHub\FGNetworkingGameEmil\src\ClientMain.cpp(
           ]
 C:\Users\Oliver.Lebert\Documents\GitHub\FGNetworkingGameEmil\src\ClientMain.cpp(56,40): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
   Player.cpp
-C:\Users\Oliver.Lebert\Documents\GitHub\FGNetworkingGameEmil\src\Projectile.h(4,34): warning C4305: 'initializing': truncation from 'double' to 'float'
-  Projectile.cpp
-C:\Users\Oliver.Lebert\Documents\GitHub\FGNetworkingGameEmil\src\Projectile.h(4,34): warning C4305: 'initializing': truncation from 'double' to 'float'
   ServerMain.cpp
-C:\Users\Oliver.Lebert\Documents\GitHub\FGNetworkingGameEmil\src\Projectile.h(4,34): warning C4305: 'initializing': truncation from 'double' to 'float'
   Generating Code...
   TinyEngine.vcxproj -> C:\Users\Oliver.Lebert\Documents\GitHub\FGNetworkingGameEmil\bin\Game_Client.exe

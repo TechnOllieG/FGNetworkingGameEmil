@@ -48,7 +48,7 @@ void handleMessage(NetMessage msg)
 		{
 			possessedPlayerId = msg.read<int>();
 
-			static const char* myName = "Emererererik";
+			static const char* myName = "Sheesh";
 			NetMessage nameMsg;
 			nameMsg.write<MessageType>(MessageType::PlayerName);
 			nameMsg.write<int>(possessedPlayerId);
@@ -87,6 +87,18 @@ void handleMessage(NetMessage msg)
 
 			player->inputX = msg.read<char>();
 			player->inputY = msg.read<char>();
+			break;
+		}
+
+		case MessageType::ProjectileSpawn:
+		{
+			int id = msg.read<int>();
+			float x = msg.read<float>();
+			float y = msg.read<float>();
+			char dirX = msg.read<char>();
+			char dirY = msg.read<char>();
+
+			projectiles[id].spawn(x, y, dirX, dirY);
 			break;
 		}
 	}

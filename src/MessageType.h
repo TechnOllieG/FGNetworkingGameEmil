@@ -7,5 +7,7 @@ enum class MessageType : unsigned char
 	PlayerDestroy,
 	PlayerPossess,
 	PlayerPosition,
-	PlayerInput
+	PlayerInput,
+	PlayerRequestFire,
+	ProjectileSpawn
 };

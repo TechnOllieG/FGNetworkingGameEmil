@@ -1,7 +1,7 @@
 #pragma once
 #define PROJECTILE_MAX 256
 
-const float projectileSpeed = 0.2;
+const float projectileSpeed = 400.f;
 const float despawnDelay = 5.f;
 
 class Projectile

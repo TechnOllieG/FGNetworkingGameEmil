@@ -74,14 +74,10 @@ void Player::update()
 
 		if(engKeyPressed(Key::Space))
 		{
-			for(auto& projectile : projectiles)
-			{
-				if (projectile.alive)
-					continue;
-
-				projectile.spawn(x, y, inputX, inputY);
-				break;
-			}
+			NetMessage msg;
+			msg.write<MessageType>(MessageType::PlayerRequestFire);
+			clientSend(msg);
+			msg.free();
 		}
 	}
 #endif
