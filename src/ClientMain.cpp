@@ -110,11 +110,11 @@ int WinMain(HINSTANCE, HINSTANCE, char*, int)
 	engInit();
 	netInit();
 
-	if (!clientConnect("10.20.2.178", 666))
-		return 1;
-
-	/*if (!clientConnect("127.0.0.1", 666))
+	/*if (!clientConnect("10.20.2.178", 666))
 		return 1;*/
+
+	if (!clientConnect("127.0.0.1", 666))
+		return 1;
 
 	while(engBeginFrame() && clientIsConnected())
 	{

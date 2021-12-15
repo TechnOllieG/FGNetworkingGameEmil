@@ -12,3 +12,5 @@ void serverKickUser(int userId);
 
 void serverSendTo(const NetMessage& message, int userId);
 void serverBroadcast(const NetMessage& message);
+
+extern bool gameStarted;

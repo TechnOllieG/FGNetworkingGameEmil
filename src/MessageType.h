@@ -8,6 +8,6 @@ enum class MessageType : unsigned char
 	PlayerPossess,
 	PlayerPosition,
 	PlayerInput,
-	PlayerRequestFire,
-	ProjectileSpawn
+	ProjectileSpawn,
+	PlayerFireButtonState
 };

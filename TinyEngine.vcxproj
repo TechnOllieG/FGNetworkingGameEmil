@@ -100,6 +100,7 @@
     <ClInclude Include="src\Client.h" />
     <ClInclude Include="src\Engine.h" />
     <ClInclude Include="src\Key.h" />
+    <ClInclude Include="src\Library.h" />
     <ClInclude Include="src\MessageType.h" />
     <ClInclude Include="src\Network.h" />
     <ClInclude Include="src\Player.h" />

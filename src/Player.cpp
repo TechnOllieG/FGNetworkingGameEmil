@@ -5,6 +5,8 @@
 #include "Network.h"
 #include <cmath>
 #include "Projectile.h"
+#include "Engine.h"
+#include "Server.h"
 
 #define clamp(a, min, max) (a < min ? min : (a > max ? max : a))
 
@@ -75,10 +77,12 @@ void Player::update()
 		inputX = frameInputX;
 		inputY = frameInputY;
 
-		if(engKeyPressed(Key::Space))
+		if (currentlyFiring ? !engKeyDown(Key::Space) : engKeyDown(Key::Space))
 		{
+			currentlyFiring = !currentlyFiring;
 			NetMessage msg;
-			msg.write<MessageType>(MessageType::PlayerRequestFire);
+			msg.write<MessageType>(MessageType::PlayerFireButtonState);
+			msg.write<bool>(currentlyFiring);
 			clientSend(msg);
 			msg.free();
 		}
@@ -87,6 +91,45 @@ void Player::update()
 
 	if(!hasControl())
 	{
+		if (gameStarted && currentlyFiring && engElapsedTime() - lastFireTime > playerFireCooldown)
+		{
+			int projectileIndex = -1;
+			for (int i = 0; i < PROJECTILE_MAX; i++)
+			{
+				if (projectiles[i].alive)
+					continue;
+
+				projectileIndex = i;
+				break;
+			}
+
+			if (projectileIndex != -1)
+			{
+				if (inputX != 0 || inputY != 0)
+				{
+					lastFireTime = engElapsedTime();
+
+					projectiles[projectileIndex].spawn(id, x, y, inputX, inputY);
+
+					NetMessage response;
+					response.write<MessageType>(MessageType::ProjectileSpawn);
+					response.write<int>(projectileIndex);
+					response.write<int>(id);
+					response.write<float>(x);
+					response.write<float>(y);
+					response.write<char>(inputX);
+					response.write<char>(inputY);
+
+					serverBroadcast(response);
+					response.free();
+				}
+			}
+			else
+			{
+				engError("Ran out of projectiles");
+			}
+		}
+
 		float errorDeltaX = errorX * playerErrorCorrectionStrength * engDeltaTime();
 		float errorDeltaY = errorY * playerErrorCorrectionStrength * engDeltaTime();
 

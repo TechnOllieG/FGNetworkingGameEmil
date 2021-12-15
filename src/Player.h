@@ -21,6 +21,7 @@ public:
 	float errorY = 0.f;
 
 	float lastFireTime = 0.f;
+	bool currentlyFiring = false;
 
 	char name[PLAYER_NAME_MAX + 1];
 

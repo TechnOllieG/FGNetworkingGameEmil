@@ -11,8 +11,6 @@
 #include "Projectile.h"
 #if SERVER
 
-bool gameStarted = false;
-
 void handleMessage(int userId, NetMessage msg)
 {
 	MessageType type = msg.read<MessageType>();
@@ -81,50 +79,16 @@ void handleMessage(int userId, NetMessage msg)
 			break;
 		}
 
-		case MessageType::PlayerRequestFire:
+		case MessageType::PlayerFireButtonState:
 		{
-			if (!gameStarted)
-				break;
-
-			int projectileIndex = -1;
-			for(int i = 0; i < PROJECTILE_MAX; i++)
-			{
-				if (projectiles[i].alive)
-					continue;
-
-				projectileIndex = i;
-				break;
-			}
-
-			if(projectileIndex == -1)
-			{
-				engError("Ran out of projectiles");
-				break;
-			}
-
 			Player* player = &players[userId];
 
-			if (player->inputX == 0 && player->inputY == 0)
-				break;
+			bool newState = msg.read<bool>();
+			if (newState != player->currentlyFiring)
+				player->currentlyFiring = newState;
+			else
+				engPrint("Client tried to change firing state to what it already is");
 
-			if (engElapsedTime() - player->lastFireTime < playerFireCooldown)
-				break;
-
-			player->lastFireTime = engElapsedTime();
-			
-			projectiles[projectileIndex].spawn(userId, player->x, player->y, player->inputX, player->inputY);
-
-			NetMessage response;
-			response.write<MessageType>(MessageType::ProjectileSpawn);
-			response.write<int>(projectileIndex);
-			response.write<int>(userId);
-			response.write<float>(player->x);
-			response.write<float>(player->y);
-			response.write<char>(player->inputX);
-			response.write<char>(player->inputY);
-
-			serverBroadcast(response);
-			response.free();
 			break;
 		}
 	}

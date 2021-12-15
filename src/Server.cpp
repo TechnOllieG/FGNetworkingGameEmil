@@ -4,6 +4,7 @@
 #include <vector>
 
 SOCKET acceptSocket = INVALID_SOCKET;
+bool gameStarted = false;
 
 enum class UserState
 {
