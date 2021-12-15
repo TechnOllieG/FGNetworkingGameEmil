@@ -1,6 +1,7 @@
 #pragma once
 #define PLAYER_MAX 20
 #define PLAYER_NAME_MAX 15
+#include "Library.h"
 
 const float playerSpeed = 180.f;
 const float playerErrorCorrectionStrength = 1.5f;
@@ -11,23 +12,20 @@ class Player
 public:
 	int id = -1;
 	bool alive = false;
-	float x;
-	float y;
+	Vector2 pos;
 
-	int inputX = 0;
-	int inputY = 0;
+	Vector2 inputVector;
 
-	float errorX = 0.f;
-	float errorY = 0.f;
+	Vector2 errorVector;
 
 	float lastFireTime = 0.f;
 	bool currentlyFiring = false;
 
-	char name[PLAYER_NAME_MAX + 1];
+	char name[PLAYER_NAME_MAX + 1] {0};
 
-	void netReceivePosition(float newX, float newY);
+	void netReceivePosition(Vector2 newPos);
 
-	void spawn(int id, int spawnX, int spawnY);
+	void spawn(int id, Vector2 spawnPos);
 	void destroy();
 
 	bool hasControl();

@@ -1,1 +1,6 @@
-﻿  TinyEngine.vcxproj -> C:\Users\olive\Documents\GitHub\FGNetworkingGameEmil\bin\Game_Server.exe
+﻿  ClientMain.cpp
+  Player.cpp
+  Projectile.cpp
+  ServerMain.cpp
+  Generating Code...
+  TinyEngine.vcxproj -> C:\Users\olive\Documents\GitHub\FGNetworkingGameEmil\bin\Game_Server.exe

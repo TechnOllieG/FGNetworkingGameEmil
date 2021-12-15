@@ -42,10 +42,10 @@ struct NetEvent
 	static NetEvent makeUserConnected(int userId) { return { NetEventType::UserConnected, userId, NetMessage() }; }
 	static NetEvent makeUserDisconnected(int userId) { return { NetEventType::UserDisconnected, userId, NetMessage() }; }
 
-	NetEventType type;
+	NetEventType type = NetEventType::Message;
 
 	// User whom this event concerns. For clients this will always be 0.
-	int userId;
+	int userId = -1;
 	NetMessage message;
 
 	void free() { message.free(); }

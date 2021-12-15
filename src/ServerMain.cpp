@@ -9,6 +9,8 @@
 #include "Network.h"
 #include "MessageType.h"
 #include "Projectile.h"
+#include "Library.h"
+
 #if SERVER
 
 void handleMessage(int userId, NetMessage msg)
@@ -51,9 +53,8 @@ void handleMessage(int userId, NetMessage msg)
 			}
 
 			Player* player = &players[userId];
-			float newX = msg.read<float>();
-			float newY = msg.read<float>();
-			player->netReceivePosition(newX, newY);
+			Vector2 newPos = msg.read<Vector2>();
+			player->netReceivePosition(newPos);
 
 			serverBroadcast(msg);
 			break;
@@ -69,12 +70,10 @@ void handleMessage(int userId, NetMessage msg)
 			}
 
 			Player* player = &players[userId];
-			float newX = msg.read<float>();
-			float newY = msg.read<float>();
-			player->netReceivePosition(newX, newY);
+			Vector2 newPos = msg.read<Vector2>();
+			player->netReceivePosition(newPos);
 
-			player->inputX = msg.read<char>();
-			player->inputY = msg.read<char>();
+			player->inputVector = msg.read<Vector2>();
 			serverBroadcast(msg);
 			break;
 		}
@@ -129,8 +128,7 @@ int WinMain(HINSTANCE, HINSTANCE, char*, int)
 							NetMessage spawnMsg;
 							spawnMsg.write<MessageType>(MessageType::PlayerSpawn);
 							spawnMsg.write<int>(i);
-							spawnMsg.write<float>(players[i].x);
-							spawnMsg.write<float>(players[i].y);
+							spawnMsg.write<Vector2>(players[i].pos);
 
 							serverSendTo(spawnMsg, event.userId);
 							spawnMsg.free();
@@ -139,8 +137,8 @@ int WinMain(HINSTANCE, HINSTANCE, char*, int)
 							NetMessage nameMsg;
 							nameMsg.write<MessageType>(MessageType::PlayerName);
 							nameMsg.write<int>(i);
-							nameMsg.write<unsigned char>(strlen(players[i].name));
-							nameMsg.write(players[i].name, strlen(players[i].name));
+							nameMsg.write<unsigned char>((unsigned char) strlen(players[i].name));
+							nameMsg.write(players[i].name, (int) strlen(players[i].name));
 
 							serverSendTo(nameMsg, event.userId);
 							nameMsg.free();
@@ -149,13 +147,13 @@ int WinMain(HINSTANCE, HINSTANCE, char*, int)
 
 					{
 						Player* player = &players[event.userId];
-						player->spawn(event.userId, rand() % 800, rand() % 600);
+						player->spawn(event.userId, Vector2((float) (rand() % 800), (float) (rand() % 600)));
 
 						NetMessage msg;
 						msg.write<MessageType>(MessageType::PlayerSpawn);
 						msg.write<int>(event.userId);
-						msg.write<float>(player->x);
-						msg.write<float>(player->y);
+						msg.write<float>(player->pos.x);
+						msg.write<float>(player->pos.y);
 
 						serverBroadcast(msg);
 						msg.free();

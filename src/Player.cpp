@@ -7,29 +7,36 @@
 #include "Projectile.h"
 #include "Engine.h"
 #include "Server.h"
+#include "Library.h"
 
-#define clamp(a, min, max) (a < min ? min : (a > max ? max : a))
+float clamp(float a, float min, float max)
+{
+	return (a < min ? min : (a > max ? max : a));
+}
+
+Vector2 clamp(Vector2 a, Vector2 min, Vector2 max)
+{
+	return Vector2(clamp(a.x, min.x, max.x), clamp(a.y, min.y, max.y));
+}
 
 Player players[PLAYER_MAX];
 #if CLIENT
 int possessedPlayerId = -1;
 #endif
 
-void Player::netReceivePosition(float newX, float newY)
+void Player::netReceivePosition(Vector2 newPos)
 {
-	newX = clamp(newX, 0.f + playerRadius, 800.f - playerRadius);
-	newY = clamp(newY, 0.f + playerRadius, 600.f - playerRadius);
-
-	errorX = newX - x;
-	errorY = newY - y;
+	newPos = clamp(newPos, Vector2(0.f + playerRadius),
+		Vector2(800.f - playerRadius, 600.f - playerRadius));
+	
+	errorVector = Vector2(newPos.x - pos.x, newPos.y - pos.y);
 }
 
-void Player::spawn(int id, int spawnX, int spawnY)
+void Player::spawn(int id, Vector2 spawnPos)
 {
 	this->id = id;
 	alive = true;
-	x = (float) spawnX;
-	y = (float) spawnY;
+	pos = spawnPos;
 }
 
 void Player::destroy()
@@ -51,31 +58,30 @@ void Player::update()
 #if CLIENT
 	if(hasControl())
 	{
-		int frameInputX = 0;
-		int frameInputY = 0;
+		Vector2 frameInput;
 
-		if (engKeyDown(Key::A)) frameInputX -= 1;
-		if (engKeyDown(Key::D)) frameInputX += 1;
-		if (engKeyDown(Key::W)) frameInputY -= 1;
-		if (engKeyDown(Key::S)) frameInputY += 1;
+		if (engKeyDown(Key::A)) frameInput.x -= 1;
+		if (engKeyDown(Key::D)) frameInput.x += 1;
+		if (engKeyDown(Key::W)) frameInput.y -= 1;
+		if (engKeyDown(Key::S)) frameInput.y += 1;
 
-		if (frameInputX != inputX || frameInputY != inputY)
+		float mag = frameInput.sqrMagnitude();
+
+		if (mag > 0.000001f || mag < -0.000001f)
 		{
+			frameInput.Normalize();
 			NetMessage msg;
 			msg.write<MessageType>(MessageType::PlayerInput);
 			msg.write<int>(id);
-			msg.write<float>(x);
-			msg.write<float>(y);
+			msg.write<Vector2>(pos);
 
-			msg.write<char>(frameInputX);
-			msg.write<char>(frameInputY);
+			msg.write<Vector2>(frameInput);
 
 			clientSend(msg);
 			msg.free();
 		}
 
-		inputX = frameInputX;
-		inputY = frameInputY;
+		inputVector = frameInput;
 
 		if (currentlyFiring ? !engKeyDown(Key::Space) : engKeyDown(Key::Space))
 		{
@@ -105,20 +111,19 @@ void Player::update()
 
 			if (projectileIndex != -1)
 			{
-				if (inputX != 0 || inputY != 0)
+				float mag = inputVector.sqrMagnitude();
+				if (mag > 0.000001f || mag < -0.000001f)
 				{
 					lastFireTime = engElapsedTime();
 
-					projectiles[projectileIndex].spawn(id, x, y, inputX, inputY);
+					projectiles[projectileIndex].spawn(id, pos, inputVector);
 
 					NetMessage response;
 					response.write<MessageType>(MessageType::ProjectileSpawn);
 					response.write<int>(projectileIndex);
 					response.write<int>(id);
-					response.write<float>(x);
-					response.write<float>(y);
-					response.write<char>(inputX);
-					response.write<char>(inputY);
+					response.write<Vector2>(pos);
+					response.write<Vector2>(inputVector);
 
 					serverBroadcast(response);
 					response.free();
@@ -130,20 +135,16 @@ void Player::update()
 			}
 		}
 
-		float errorDeltaX = errorX * playerErrorCorrectionStrength * engDeltaTime();
-		float errorDeltaY = errorY * playerErrorCorrectionStrength * engDeltaTime();
+		Vector2 errorDelta = errorVector * (playerErrorCorrectionStrength * engDeltaTime());
 
-		x += errorDeltaX;
-		y += errorDeltaY;
-		errorX -= errorDeltaX;
-		errorY -= errorDeltaY;
+		pos += errorDelta;
+		errorVector -= errorDelta;
 	}
 
-	x += inputX * playerSpeed * engDeltaTime();
-	y += inputY * playerSpeed * engDeltaTime();
+	pos += inputVector * (playerSpeed * engDeltaTime());
 
-	x = clamp(x, 0.f + playerRadius, 800.f - playerRadius);
-	y = clamp(y, 0.f + playerRadius, 600.f - playerRadius);
+	pos = clamp(pos, Vector2(0.f + playerRadius),
+		Vector2(800.f - playerRadius, 600.f - playerRadius));
 }
 
 void Player::draw()
@@ -153,6 +154,6 @@ void Player::draw()
 	if (hasControl())
 		engSetColor(0xADDEBEEF);
 #endif
-	engFillRect((int)x - playerRadius, (int)y - playerRadius, 32, 32);
-	engText((int)x - playerRadius, (int)y - playerRadius - 16, name);
+	engFillRect((int)(pos.x - playerRadius), (int)(pos.y - playerRadius), 32, 32);
+	engText((int)(pos.x - playerRadius), (int)(pos.y - playerRadius) - 16, name);
 }

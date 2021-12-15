@@ -6,6 +6,18 @@ struct Vector2
 	float x;
 	float y;
 
+	Vector2()
+	{
+		x = 0;
+		y = 0;
+	}
+
+	Vector2(float inBoth)
+	{
+		x = inBoth;
+		y = inBoth;
+	}
+
 	Vector2(float inX, float inY)
 	{
 		x = inX;
@@ -27,9 +39,19 @@ struct Vector2
 		return Vector2(x + rhs.x, y + rhs.y);
 	}
 
+	void operator+=(Vector2 rhs)
+	{
+		*this = Vector2(x + rhs.x, y + rhs.y);
+	}
+
 	Vector2 operator-(Vector2 rhs)
 	{
 		return Vector2(x - rhs.x, y - rhs.y);
+	}
+
+	void operator-=(Vector2 rhs)
+	{
+		*this = Vector2(x - rhs.x, y - rhs.y);
 	}
 
 	float sqrMagnitude()

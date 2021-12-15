@@ -19,9 +19,8 @@ void handleMessage(NetMessage msg)
 		case MessageType::PlayerSpawn:
 		{
 			int id = msg.read<int>();
-			float x = msg.read<float>();
-			float y = msg.read<float>();
-			players[id].spawn(id, (int)x, (int)y);
+			Vector2 pos = msg.read<Vector2>();
+			players[id].spawn(id, pos);
 			break;
 		}
 
@@ -52,8 +51,8 @@ void handleMessage(NetMessage msg)
 			NetMessage nameMsg;
 			nameMsg.write<MessageType>(MessageType::PlayerName);
 			nameMsg.write<int>(possessedPlayerId);
-			nameMsg.write<unsigned char>(strlen(myName));
-			nameMsg.write(myName, strlen(myName));
+			nameMsg.write<unsigned char>((unsigned char) strlen(myName));
+			nameMsg.write(myName, (int) strlen(myName));
 
 			clientSend(nameMsg);
 			nameMsg.free();
@@ -67,8 +66,7 @@ void handleMessage(NetMessage msg)
 			if (player->hasControl())
 				break;
 
-			player->x = msg.read<float>();
-			player->y = msg.read<float>();
+			player->pos = msg.read<Vector2>();
 			break;
 		}
 
@@ -80,13 +78,11 @@ void handleMessage(NetMessage msg)
 			if (player->hasControl())
 				break;
 
-			float newX = msg.read<float>();
-			float newY = msg.read<float>();
+			Vector2 newPos = msg.read<Vector2>();
 
-			player->netReceivePosition(newX, newY);
+			player->netReceivePosition(newPos);
 
-			player->inputX = msg.read<char>();
-			player->inputY = msg.read<char>();
+			player->inputVector = msg.read<Vector2>();
 			break;
 		}
 
@@ -94,12 +90,10 @@ void handleMessage(NetMessage msg)
 		{
 			int id = msg.read<int>();
 			int playerId = msg.read<int>();
-			float x = msg.read<float>();
-			float y = msg.read<float>();
-			char dirX = msg.read<char>();
-			char dirY = msg.read<char>();
+			Vector2 pos = msg.read<Vector2>();
+			Vector2 dir = msg.read<Vector2>();
 
-			projectiles[id].spawn(playerId, x, y, dirX, dirY);
+			projectiles[id].spawn(playerId, pos, dir);
 			break;
 		}
 	}

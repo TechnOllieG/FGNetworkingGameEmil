@@ -5,16 +5,14 @@
 
 Projectile projectiles[PROJECTILE_MAX];
 
-void Projectile::spawn(int player, float spawnX, float spawnY, int dirX, int dirY)
+void Projectile::spawn(int player, Vector2 spawnPos, Vector2 dir)
 {
 	alive = true;
-	x = spawnX;
-	y = spawnY;
+	pos = spawnPos;
 
 	ownerPlayer = player;
 
-	velocityX = dirX * projectileSpeed;
-	velocityY = dirY * projectileSpeed;
+	velocity = dir * projectileSpeed;
 
 	spawnTime = engElapsedTime();
 }
@@ -32,8 +30,7 @@ void Projectile::update()
 		return;
 	}
 
-	x += velocityX * engDeltaTime();
-	y += velocityY * engDeltaTime();
+	pos += velocity * engDeltaTime();
 
 	for(auto& player : players)
 	{
@@ -43,9 +40,7 @@ void Projectile::update()
 		if (player.id == ownerPlayer)
 			continue;
 
-		float diffX = x - player.x;
-		float diffY = y - player.y;
-		float distSqr = (diffX * diffX + diffY * diffY);
+		float distSqr = (pos - player.pos).sqrMagnitude();
 		float radiusSqr = projectileRadius + playerRadius;
 		radiusSqr = radiusSqr * radiusSqr;
 
@@ -65,6 +60,6 @@ void Projectile::update()
 void Projectile::draw()
 {
 	engSetColor(0x000000FF);
-	engFillRect((int)x - projectileRadius, (int)y - projectileRadius, 8, 8);
+	engFillRect((int)(pos.x - projectileRadius), (int)(pos.y - projectileRadius), 8, 8);
 }
 
