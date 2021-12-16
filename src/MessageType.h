@@ -9,5 +9,10 @@ enum class MessageType : unsigned char
 	PlayerPosition,
 	PlayerInput,
 	ProjectileSpawn,
-	PlayerFireButtonState
+	PlayerFireButtonState,
+	PointEntitySpawn,
+	PointEntityPickup,
+	PlayerAcceleration,
+	PlayerPoint,
+	PlayerSprint
 };

@@ -1,15 +1,17 @@
 #pragma once
 #include <cmath>
 
+#define EQUALITY_MARGIN 1.e-4f
+
 struct Vector2
 {
-	float x;
-	float y;
+	float x = 0.f;
+	float y = 0.f;
 
 	Vector2()
 	{
-		x = 0;
-		y = 0;
+		x = 0.f;
+		y = 0.f;
 	}
 
 	Vector2(float inBoth)
@@ -54,6 +56,16 @@ struct Vector2
 		*this = Vector2(x - rhs.x, y - rhs.y);
 	}
 
+	bool operator==(Vector2 rhs)
+	{
+		return abs(x - rhs.x) < EQUALITY_MARGIN && abs(y - rhs.y) < EQUALITY_MARGIN;
+	}
+
+	bool operator!=(Vector2 rhs)
+	{
+		return !(*this == rhs);
+	}
+
 	float sqrMagnitude()
 	{
 		return x * x + y * y;
@@ -73,5 +85,15 @@ struct Vector2
 	void Normalize()
 	{
 		*this = normalized();
+	}
+
+	float static Distance(Vector2 a, Vector2 b)
+	{
+		return (a - b).magnitude();
+	}
+
+	float static SqrDistance(Vector2 a, Vector2 b)
+	{
+		return (a - b).sqrMagnitude();
 	}
 };

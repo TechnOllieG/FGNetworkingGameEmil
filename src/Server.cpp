@@ -5,6 +5,7 @@
 
 SOCKET acceptSocket = INVALID_SOCKET;
 bool gameStarted = false;
+bool gameWon = false;
 
 enum class UserState
 {

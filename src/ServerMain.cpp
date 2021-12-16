@@ -10,6 +10,8 @@
 #include "MessageType.h"
 #include "Projectile.h"
 #include "Library.h"
+#include "PointEntity.h"
+#include "Scoreboard.h"
 
 #if SERVER
 
@@ -90,6 +92,20 @@ void handleMessage(int userId, NetMessage msg)
 
 			break;
 		}
+
+		case MessageType::PlayerSprint:
+		{
+			int id = msg.read<int>();
+			if (id != userId)
+			{
+				serverKickUser(userId);
+				return;
+			}
+			bool sprintState = msg.read<bool>();
+			players[userId].sprinting = sprintState;
+			serverBroadcast(msg);
+			break;
+		}
 	}
 }
 
@@ -133,6 +149,7 @@ int WinMain(HINSTANCE, HINSTANCE, char*, int)
 							serverSendTo(spawnMsg, event.userId);
 							spawnMsg.free();
 						}
+
 						{
 							NetMessage nameMsg;
 							nameMsg.write<MessageType>(MessageType::PlayerName);
@@ -143,6 +160,15 @@ int WinMain(HINSTANCE, HINSTANCE, char*, int)
 							serverSendTo(nameMsg, event.userId);
 							nameMsg.free();
 						}
+
+						{
+							NetMessage pointMsg;
+							pointMsg.write<MessageType>(MessageType::PlayerPoint);
+							pointMsg.write<int>(i);
+							pointMsg.write<int>(players[i].points);
+							serverSendTo(pointMsg, event.userId);
+							pointMsg.free();
+						}
 					}
 
 					{
@@ -152,8 +178,7 @@ int WinMain(HINSTANCE, HINSTANCE, char*, int)
 						NetMessage msg;
 						msg.write<MessageType>(MessageType::PlayerSpawn);
 						msg.write<int>(event.userId);
-						msg.write<float>(player->pos.x);
-						msg.write<float>(player->pos.y);
+						msg.write<Vector2>(player->pos);
 
 						serverBroadcast(msg);
 						msg.free();
@@ -203,9 +228,42 @@ int WinMain(HINSTANCE, HINSTANCE, char*, int)
 		engSetColor(0xFFFFFFFF);
 		engText(400, 12, gameStarted ? "STARTED" : "WAITING...");
 
-		// Check if we have a winner
 		if(gameStarted)
 		{
+			float time = engElapsedTime();
+			if (time - lastPointEntitySpawn > pointEntitySpawnCooldown)
+			{
+				lastPointEntitySpawn = time;
+
+				int pointEntityIndex = -1;
+				for (int i = 0; i < POINT_ENTITIES_MAX; i++)
+				{
+					if (pointEntities[i].alive)
+						continue;
+
+					pointEntityIndex = i;
+					break;
+				}
+
+				if (pointEntityIndex != -1)
+				{
+					PointEntity* entity = &pointEntities[pointEntityIndex];
+					entity->spawn(Vector2(rand() % 800, rand() % 600));
+
+					NetMessage msg;
+					msg.write<MessageType>(MessageType::PointEntitySpawn);
+					msg.write<int>(pointEntityIndex);
+					msg.write<Vector2>(entity->pos);
+					serverBroadcast(msg);
+					msg.free();
+				}
+				else
+				{
+					engPrint("Ran out of point entities");
+				}
+			}
+
+			// Check if we have a winner
 			int numAlivePlayers = 0;
 			int lastAlivePlayer = -1;
 			for (auto& player : players)
@@ -218,9 +276,20 @@ int WinMain(HINSTANCE, HINSTANCE, char*, int)
 			}
 
 			if (numAlivePlayers == 1)
+			{
 				engTextf(400, 300, "'%s' WINS!", players[lastAlivePlayer].name);
+				gameWon = true;
+			}
 			else if (numAlivePlayers == 0)
-				engText(400, 300, "Draw :(");
+			{
+				if (gameWon)
+				{
+					gameWon = false;
+					gameStarted = false;
+				}
+				else
+					engText(400, 300, "Draw :(");
+			}
 		}
 		
 
@@ -247,6 +316,14 @@ int WinMain(HINSTANCE, HINSTANCE, char*, int)
 			if (projectile.alive)
 				projectile.draw();
 		}
+
+		for (auto& pointEntity : pointEntities)
+		{
+			if (pointEntity.alive)
+				pointEntity.draw();
+		}
+
+		drawScoreboard();
 	}
 
 	return 0;

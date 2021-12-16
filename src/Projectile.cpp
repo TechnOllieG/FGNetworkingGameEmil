@@ -2,6 +2,8 @@
 #include "Engine.h"
 #include "Player.h"
 #include "Server.h"
+#include "Network.h"
+#include "MessageType.h"
 
 Projectile projectiles[PROJECTILE_MAX];
 
@@ -49,8 +51,30 @@ void Projectile::update()
 			destroy();
 
 #if SERVER
-			serverKickUser(player.id);
-			engPrint("'%s' --> '%s'", players[ownerPlayer].name, player.name);
+			if (player.points <= 0)
+			{
+				serverKickUser(player.id);
+				engPrint("'%s' --> '%s'", players[ownerPlayer].name, player.name);
+				return;
+			}
+			--player.points;
+
+			player.additionalVelocity += (player.pos - pos).normalized() * projectilePushbackForce;
+
+			NetMessage pointMessage;
+			pointMessage.write<MessageType>(MessageType::PlayerPoint);
+			pointMessage.write<int>(player.id);
+			pointMessage.write<int>(player.points);
+			serverBroadcast(pointMessage);
+			pointMessage.free();
+
+			NetMessage msg;
+			msg.write<MessageType>(MessageType::PlayerAcceleration);
+			msg.write<int>(player.id);
+			msg.write<Vector2>(player.pos);
+			msg.write<Vector2>(player.additionalVelocity);
+			serverBroadcast(msg);
+			msg.free();
 #endif
 			return;
 		}

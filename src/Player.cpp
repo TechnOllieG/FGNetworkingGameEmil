@@ -8,6 +8,7 @@
 #include "Engine.h"
 #include "Server.h"
 #include "Library.h"
+#include "PointEntity.h"
 
 float clamp(float a, float min, float max)
 {
@@ -60,16 +61,16 @@ void Player::update()
 	{
 		Vector2 frameInput;
 
-		if (engKeyDown(Key::A)) frameInput.x -= 1;
-		if (engKeyDown(Key::D)) frameInput.x += 1;
-		if (engKeyDown(Key::W)) frameInput.y -= 1;
-		if (engKeyDown(Key::S)) frameInput.y += 1;
+		if (engKeyDown(Key::A)) frameInput.x -= 1.f;
+		if (engKeyDown(Key::D)) frameInput.x += 1.f;
+		if (engKeyDown(Key::W)) frameInput.y -= 1.f;
+		if (engKeyDown(Key::S)) frameInput.y += 1.f;
 
-		float mag = frameInput.sqrMagnitude();
-
-		if (mag > 0.000001f || mag < -0.000001f)
-		{
+		if(frameInput != Vector2())
 			frameInput.Normalize();
+
+		if (frameInput != inputVector)
+		{
 			NetMessage msg;
 			msg.write<MessageType>(MessageType::PlayerInput);
 			msg.write<int>(id);
@@ -90,6 +91,78 @@ void Player::update()
 			msg.write<MessageType>(MessageType::PlayerFireButtonState);
 			msg.write<bool>(currentlyFiring);
 			clientSend(msg);
+			msg.free();
+		}
+
+		bool changedState = false;
+		if (engKeyDown(Key::Tab))
+		{
+			if (!sprinting)
+			{
+				sprinting = true;
+				changedState = true;
+			}
+		}
+		else
+		{
+			if (sprinting)
+			{
+				sprinting = false;
+				changedState = true;
+			}
+		}
+
+		if (changedState)
+		{
+			NetMessage msg;
+			msg.write<MessageType>(MessageType::PlayerSprint);
+			msg.write<int>(id);
+			msg.write<bool>(sprinting);
+			clientSend(msg);
+			msg.free();
+		}
+	}
+#else
+	for (int i = 0; i < POINT_ENTITIES_MAX; i++)
+	{
+		if (!pointEntities[i].alive)
+			continue;
+
+		if (Vector2::Distance(pointEntities[i].pos, pos) < playerRadius + pointEntityRadius)
+		{
+			++points;
+			pointEntities[i].destroy();
+
+			NetMessage msg;
+			msg.write<MessageType>(MessageType::PointEntityPickup);
+			msg.write<int>(id);
+			msg.write<int>(i);
+			msg.write<int>(points);
+			serverBroadcast(msg);
+			msg.free();
+		}
+	}
+
+	for (int i = 0; i < PLAYER_MAX; i++)
+	{
+		if (!players[i].alive || &players[i] == this)
+			continue;
+
+		Player* curr = &players[i];
+		float dist = Vector2::Distance(curr->pos, pos);
+		if (dist < playerRadius * 2)
+		{
+			Vector2 depenetrationVector = (pos - curr->pos).normalized();
+			// Depenetrate
+			pos += depenetrationVector * (playerRadius * 2 - dist);
+			additionalVelocity += depenetrationVector * playerPushbackForce;
+
+			NetMessage msg;
+			msg.write<MessageType>(MessageType::PlayerAcceleration);
+			msg.write<int>(id);
+			msg.write<Vector2>(pos);
+			msg.write<Vector2>(additionalVelocity);
+			serverBroadcast(msg);
 			msg.free();
 		}
 	}
@@ -141,7 +214,9 @@ void Player::update()
 		errorVector -= errorDelta;
 	}
 
-	pos += inputVector * (playerSpeed * engDeltaTime());
+	pos += inputVector * ((sprinting ? playerSprintSpeed : playerSpeed) * engDeltaTime());
+	pos += additionalVelocity * engDeltaTime();
+	additionalVelocity -= additionalVelocity * playerPushbackFriction * engDeltaTime();
 
 	pos = clamp(pos, Vector2(0.f + playerRadius),
 		Vector2(800.f - playerRadius, 600.f - playerRadius));

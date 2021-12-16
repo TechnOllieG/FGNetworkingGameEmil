@@ -6,6 +6,7 @@ const float projectileSpeed = 400.f;
 const float despawnDelay = 5.f;
 const float projectileRadius = 4.f;
 const float playerFireCooldown = 1.f;
+const float projectilePushbackForce = 100;
 
 class Projectile
 {

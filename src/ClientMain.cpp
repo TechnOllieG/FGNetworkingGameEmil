@@ -7,6 +7,8 @@
 #include "Network.h"
 #include "MessageType.h"
 #include "Projectile.h"
+#include "PointEntity.h"
+#include "Scoreboard.h"
 
 #if CLIENT
 
@@ -96,6 +98,57 @@ void handleMessage(NetMessage msg)
 			projectiles[id].spawn(playerId, pos, dir);
 			break;
 		}
+
+		case MessageType::PointEntitySpawn:
+		{
+			int id = msg.read<int>();
+			Vector2 pos = msg.read<Vector2>();
+			
+			pointEntities[id].spawn(pos);
+			break;
+		}
+
+		case MessageType::PointEntityPickup:
+		{
+			int playerId = msg.read<int>();
+			int pointId = msg.read<int>();
+			int points = msg.read<int>();
+
+			pointEntities[pointId].destroy();
+
+			if (playerId != -1)
+				players[playerId].points = points;
+
+			break;
+		}
+
+		case MessageType::PlayerAcceleration:
+		{
+			int playerId = msg.read<int>();
+			Vector2 playerPos = msg.read<Vector2>();
+			Vector2 velocity = msg.read<Vector2>();
+
+			players[playerId].pos = playerPos;
+			players[playerId].errorVector = Vector2();
+			players[playerId].additionalVelocity = velocity;
+			break;
+		}
+
+		case MessageType::PlayerPoint:
+		{
+			int playerId = msg.read<int>();
+			int points = msg.read<int>();
+			players[playerId].points = points;
+			break;
+		}
+
+		case MessageType::PlayerSprint:
+		{
+			int playerId = msg.read<int>();
+			bool sprintState = msg.read<bool>();
+			players[playerId].sprinting = sprintState;
+			break;
+		}
 	}
 }
 
@@ -152,6 +205,14 @@ int WinMain(HINSTANCE, HINSTANCE, char*, int)
 			if (projectile.alive)
 				projectile.draw();
 		}
+
+		for (auto& pointEntity : pointEntities)
+		{
+			if (pointEntity.alive)
+				pointEntity.draw();
+		}
+
+		drawScoreboard();
 	}
 
 	return 0;
