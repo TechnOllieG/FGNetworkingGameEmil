@@ -95,7 +95,7 @@ void Player::update()
 		}
 
 		bool changedState = false;
-		if (engKeyDown(Key::Tab))
+		if (engKeyDown(Key::LShift))
 		{
 			if (!sprinting)
 			{

@@ -1,4 +1,19 @@
-﻿  Player.cpp
+﻿  BinaryStream.cpp
+  Client.cpp
+  ClientMain.cpp
+  Engine.cpp
+  Network.cpp
+  Player.cpp
+  PointEntity.cpp
+C:\Users\olive\Documents\GitHub\FGNetworkingGameEmil\src\PointEntity.cpp(22,111): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\olive\Documents\GitHub\FGNetworkingGameEmil\src\PointEntity.cpp(22,86): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\olive\Documents\GitHub\FGNetworkingGameEmil\src\PointEntity.cpp(22,47): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\olive\Documents\GitHub\FGNetworkingGameEmil\src\PointEntity.cpp(22,20): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+  Projectile.cpp
   Scoreboard.cpp
+  Server.cpp
+  ServerMain.cpp
+C:\Users\olive\Documents\GitHub\FGNetworkingGameEmil\src\ServerMain.cpp(251,49): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\olive\Documents\GitHub\FGNetworkingGameEmil\src\ServerMain.cpp(251,35): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   Generating Code...
   TinyEngine.vcxproj -> C:\Users\olive\Documents\GitHub\FGNetworkingGameEmil\bin\Game_Server.exe

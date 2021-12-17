@@ -113,5 +113,14 @@ enum class Key : uint16_t
 	NumPad0,
 	NumPadPeriod,
 
+    LCtrl = 224,
+    LShift,
+    LAlt,
+    LWindows,
+    RCtrl,
+    RShift,
+    RAlt,
+    RWindows,
+
 	MAX // Always leave last
 };
